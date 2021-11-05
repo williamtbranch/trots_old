@@ -4,8 +4,7 @@
 	],
 	"copyright": "Copyright © 2021, William Branch",
 	"dependencies": {
-		"tcltk": "~>8.6.5",
-		"tkd": "~>1.1.14"
+		"gtk-d": "~>3.9.0"
 	},
 	"description": "Trots is a traders return optimization tool suite",
 	"license": "MIT",

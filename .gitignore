@@ -1,0 +1,16 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/trots
+trots.so
+trots.dylib
+trots.dll
+trots.a
+trots.lib
+trots-test-*
+*.exe
+*.o
+*.obj
+*.lst
+trots
