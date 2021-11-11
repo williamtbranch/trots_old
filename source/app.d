@@ -8,12 +8,14 @@ import gtk.Menu;
 import gtk.MenuBar;
 import gtk.MenuItem;
 import gtk.Widget;
+import gtk.Window;
 import gtk.Paned;
 import gtk.Image;
 import gtk.ListBox;
 import gtk.Label;
 import gtk.DrawingArea;
 import cairo.Context;
+import gtk.FileChooserDialog;
 import gdk.Event;
 
 void main(string[] args)
@@ -37,7 +39,7 @@ class TrotsWindow : MainWindow
 		setDefaultSize(1200, 800);
 		addOnDestroy(&quitApp);
 
-		AppBox appBox = new AppBox();
+		AppBox appBox = new AppBox(this);
 		add(appBox);
 		
 		showAll();
@@ -61,11 +63,11 @@ class AppBox : Box
 	int padding = 10;
 	TrotsMenuBar menuBar;
 	
-	this()
+	this(Window parentWindow)
 	{
 		super(Orientation.VERTICAL, padding);
 		
-		menuBar = new TrotsMenuBar();
+		menuBar = new TrotsMenuBar(parentWindow);
     	packStart(menuBar, false, false, 0);		
 		TrotsPane mainPane = new TrotsPane();
 		add(mainPane);
@@ -77,13 +79,14 @@ class AppBox : Box
 
 class TrotsMenuBar : MenuBar
 {
+	string fileHeaderLabel = "File";
 	FileMenuHeader fileMenuHeader;
 	
-	this()
+	this(Window parentWindow)
 	{
 		super();
 		
-		fileMenuHeader = new FileMenuHeader();
+		fileMenuHeader = new FileMenuHeader(fileHeaderLabel, parentWindow);
 		append(fileMenuHeader);		
 		
 	} // this()
@@ -94,15 +97,14 @@ class TrotsMenuBar : MenuBar
 
 class FileMenuHeader : MenuItem
 {
-	string headerTitle = "File";
 	FileMenu fileMenu;
 	
 	// arg: a Menu object
-	this()
+	this(string headerTitle, Window parentWindow)
 	{
 		super(headerTitle);
 		
-		fileMenu = new FileMenu();
+		fileMenu = new FileMenu(parentWindow);
 		setSubmenu(fileMenu);
 		
 		
@@ -114,17 +116,21 @@ class FileMenuHeader : MenuItem
 class FileMenu : Menu
 {
 	NewFileItem newFileItem;
+	ImportFileItem importFileItem;
 	OpenFileItem openFileItem;
 	CloseFileItem closeFileItem;
 	ExitItem exitItem;
 	
 	// arg: an array of items
-	this()
+	this(Window parentWindow)
 	{
 		super();
 		
 		newFileItem = new NewFileItem();
 		append(newFileItem);
+
+		importFileItem = new ImportFileItem(parentWindow);
+		append(importFileItem);
 		
 		openFileItem = new OpenFileItem();
 		append(openFileItem);
@@ -179,6 +185,52 @@ class OpenFileItem : MenuItem
 		writeln("A file dialog will be shown now.");
 		
 	} // doSomething()
+	
+} // class OpenFileItem
+
+class ImportFileItem : MenuItem
+{
+	string itemLabel = "Import";
+	FileChooserDialog fileChooserDialog;
+	Window parentWindow;
+	string filename;
+   
+	this(Window extParentWindow)
+	{
+		super(itemLabel);
+		addOnActivate(&doSomething);
+		parentWindow = extParentWindow;
+		
+	} // this()
+	
+	
+	void doSomething(MenuItem mi)
+	{
+		writeln("Import equity");
+		int response;
+		FileChooserAction action = FileChooserAction.OPEN;
+
+		FileChooserDialog dialog = new FileChooserDialog("Import an Equity", parentWindow, action, null, null);
+		response = dialog.run();
+
+		if(response == ResponseType.OK)
+		{
+			filename = dialog.getFilename();
+			importFile(filename);
+		}
+		else
+		{
+			writeln("cancelled.");
+		}
+
+		dialog.destroy();
+		
+	} // doSomething()
+
+	void importFile(string filename)
+	{
+		writeln("file to import: ", filename);
+	}
 	
 } // class OpenFileItem
 
@@ -237,11 +289,11 @@ class TrotsPane : Paned
 		auto label2 = new Label("there");
 		auto trotsGraph = new DrawingBox();
 		//auto child1 = new DrawingBox();
-		pack1(trotsGraph, false, false);
 		auto child2 = new ListBox();
 
 		child2.insert(label1,1);
 		child2.insert(label2,2);
+		add1(trotsGraph);
 		add2(child2);
 		
 		
@@ -273,6 +325,7 @@ class DrawingBox : Box
 	this()
 	{
 		super(Orientation.VERTICAL, 10);
+		setSizeRequest(800, 400);
 		trotsGraph = new TrotsGraphArea();
 		packStart(trotsGraph, true, true, 0);
 	}
