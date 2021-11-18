@@ -18,9 +18,14 @@ import cairo.Context;
 import gtk.FileChooserDialog;
 import gdk.Event;
 
+import trots.trots;
+import trots.tfile;
+
 void main(string[] args)
 {
 	TrotsWindow trotsWindow;
+	printTrots();
+	printTrots2();
 	
 	Main.init(args);
 	trotsWindow = new TrotsWindow();
