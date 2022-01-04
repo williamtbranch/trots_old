@@ -1,4 +1,4 @@
-module trots.tfile;
+module tr.tfile;
 
 
 import std.stdio;

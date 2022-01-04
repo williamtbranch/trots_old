@@ -1,4 +1,4 @@
-module trots.trots;
+module tr.trots;
 
 import std.stdio;
 
