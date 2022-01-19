@@ -13,3 +13,4 @@ trots-test-*
 *.obj
 *.lst
 trots
+node_modules
