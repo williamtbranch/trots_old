@@ -2,6 +2,7 @@
 docs.json
 __dummy.html
 docs/
+NODE/dist/
 trots.so
 trots.dylib
 trots.dll

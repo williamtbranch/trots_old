@@ -2,12 +2,13 @@
   "name": "etrots",
   "version": "0.0.1",
   "description": "Systematic trading platform",
-  "main": "main.js",
+  "main": "main.ts",
   "scripts": {
-    "test": "etest",
-    "start": "electron-forge start",
-    "package": "electron-forge package",
-    "make": "electron-forge make"
+        "build": "tsc",
+        "start": "npm run build && electron ./dist/main.js",
+        "test": "etest",
+        "package": "electron-forge package",
+        "make": "electron-forge make"
   },
   "keywords": [
     "trading",
