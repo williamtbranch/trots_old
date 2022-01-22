@@ -1,14 +1,13 @@
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
-const ui = import("./ui");
-
+import { PlaceMenu } from "./ui";
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     height: 800,
-    webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-    },
+    //webPreferences: {
+    //  preload: path.join(__dirname, "preload.js"),
+    //},
     width: 1000,
   });
 
@@ -24,7 +23,7 @@ function createWindow() {
 // Some APIs can only be used after this event occurs.
 app.on("ready", () => {
   createWindow();
-  ui.PlaceMenu();
+  PlaceMenu(); 
 
   app.on("activate", function () {
     // On macOS it's common to re-create a window in the app when the
