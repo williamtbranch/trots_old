@@ -2,11 +2,10 @@
   "name": "etrots",
   "version": "0.0.1",
   "description": "Systematic trading platform",
-  "main": "main.ts",
+  "main": "./dist/main.js",
   "scripts": {
     "build": "tsc",
-    "start": "npm run build && electron ./dist/main.js",
-    "test": "etest"
+    "start": "npm run build && electron ."
   },
   "keywords": [
     "trading",
@@ -17,6 +16,7 @@
   "dependencies": {
     "electron": "^16.0.7",
     "electron-squirrel-startup": "^1.0.0",
+    "got": "^11.8.3",
     "lightweight-charts": "^3.7.0"
   }
 }
