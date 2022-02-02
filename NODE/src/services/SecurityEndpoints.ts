@@ -1,23 +1,36 @@
-interface Tick {
-  close: number,
-  open: number,
-  high: number,
-  low: number,
-  time: Date
+
+import got from 'got';
+
+interface period {
+  "1. open": string;
+  "2. high": string;
+  "3. low": string;
+  "4. close": string;
+  "5. volume": string;
 }
 
-export interface SecurityDto {
-  name: string,
-  data: Tick[]
+interface timeSeries {
+  [date: string]: period;
+}
+
+interface metaData {
+  "1. Information": string;
+  "2. Symbol": string;
+  "3. Last Refreshed": string;
+  "4. Output Size": string;
+  "5. Time Zone": string;
+}
+
+export interface  securityDto {
+  "Meta Data": metaData;
+  "Time Series (Daily)"?: timeSeries;
 }
 
 class SecurityEndpoint {
-  //get = (stock: string, begin: DateTime, end: DateTime) => 
-      // code to grab stock data and format it if needed
-
-  //load = (stock: string) =>
-      // load from the file system
-
-  //save = (stock: StockDto) =>
-      // save the stock to the file system
+  series: securityDto;
+  security = () => got.get('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo')
+    .json<securityDto>()
+    .then(res => { return res });
 }
+
+export default new SecurityEndpoint();

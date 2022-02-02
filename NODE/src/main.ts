@@ -1,9 +1,10 @@
 import { app, BrowserWindow } from "electron";
 import * as path from "path";
 import { PlaceMenu } from "./ui";
-import {Trots} from "./trots";
+//import {SecurityDto, Trots} from "./trots";
 import {ipcMain} from "electron";
 import CatFactEndpoint from "./services/CatFactEndpoint"
+import SecurityEndpoints, { securityDto } from "./services/SecurityEndpoints";
 
 const ipc = ipcMain;
 let mainWindow: BrowserWindow;
@@ -26,10 +27,13 @@ function createWindow() {
 app.on("ready", () => {
   createWindow();
   PlaceMenu(mainWindow); 
-  let trots = new Trots;
+  //let trots = new Trots;
 
   CatFactEndpoint.catfact().then((fact: string) => 
     mainWindow.webContents.send('catfact', fact)
+  )
+  SecurityEndpoints.security().then((value: securityDto) => 
+    mainWindow.webContents.send('security:get', value)
   )
 
   app.on("activate", function () {
