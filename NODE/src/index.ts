@@ -17,6 +17,7 @@ ipcRenderer.on('catfact', (event, catfact: string) => {
 ipcRenderer.on('security:get', (event, series: securityDto) => {
   const chart = createChart(document.body, {width: 400, height: 300});
   const lineSeries = chart.addLineSeries();
+  console.log (series);
   lineSeries.setData([
     {time: '2019-04-11', value: 80.01},
     { time: '2019-04-12', value: 96.63}
