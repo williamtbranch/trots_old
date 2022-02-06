@@ -33,7 +33,7 @@ app.on("ready", () => {
   CatFactEndpoint.catfact().then((fact: string) => 
     mainWindow.webContents.send('catfact', fact)
   )
-  SecurityEndpoints.security().then((value: Tick[]) => 
+  SecurityEndpoints.security("IBM").then((value: Tick[]) => 
     mainWindow.webContents.send('security:get', value)
   )
 

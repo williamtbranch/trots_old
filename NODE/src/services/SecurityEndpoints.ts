@@ -29,7 +29,7 @@ interface  alphavantageSecurityDto {
 
 class SecurityEndpoint {
   series: alphavantageSecurityDto;
-  security = () => got.get('https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=IBM&apikey=demo')
+  security = (symbol: string) => got.get(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=demo`)
     .json<any>()
     .then(res => { return (Object.entries(res["Time Series (Daily)"]).map((x:[string,period]) => ({
       close: parseFloat(x[1]["4. close"]),
