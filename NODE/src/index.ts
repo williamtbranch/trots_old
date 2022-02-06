@@ -1,6 +1,7 @@
-import {ipcRenderer} from "electron";
-import SecurityEndpoints, { securityDto } from "./services/SecurityEndpoints";
+import {app, ipcRenderer} from "electron";
+import SecurityEndpoints from "./services/SecurityEndpoints";
 import {createChart} from "./lightweight-charts.standalone.development.js";
+import {SecurityDto, Tick} from './trots';
 
 
 ipcRenderer.on('security:send', (event, arg) => {
@@ -14,12 +15,14 @@ ipcRenderer.on('catfact', (event, catfact: string) => {
   console.log(catfact); 
 })
 
-ipcRenderer.on('security:get', (event, series: securityDto) => {
-  const chart = createChart(document.body, {width: 400, height: 300});
-  const lineSeries = chart.addLineSeries();
+ipcRenderer.on('security:get', (event, series: Tick[]) => {
+  const chart = createChart(document.body, {width: 600, height: 400});
   console.log (series);
-  lineSeries.setData([
-    {time: '2019-04-11', value: 80.01},
-    { time: '2019-04-12', value: 96.63}
-  ]);
-})
+  const lineSeries = chart.addLineSeries();
+  lineSeries.setData(series.map (x => ({
+    time: x.time.toISOString().split("T")[0],
+    value: x.close
+  })).sort((a,b) => 
+   a.time < b.time ? 1:0 
+  ))
+});

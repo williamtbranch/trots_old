@@ -4,7 +4,8 @@ import { PlaceMenu } from "./ui";
 //import {SecurityDto, Trots} from "./trots";
 import {ipcMain} from "electron";
 import CatFactEndpoint from "./services/CatFactEndpoint"
-import SecurityEndpoints, { securityDto } from "./services/SecurityEndpoints";
+import SecurityEndpoints from "./services/SecurityEndpoints";
+import {Tick} from "./trots"
 
 const ipc = ipcMain;
 let mainWindow: BrowserWindow;
@@ -32,7 +33,7 @@ app.on("ready", () => {
   CatFactEndpoint.catfact().then((fact: string) => 
     mainWindow.webContents.send('catfact', fact)
   )
-  SecurityEndpoints.security().then((value: securityDto) => 
+  SecurityEndpoints.security().then((value: Tick[]) => 
     mainWindow.webContents.send('security:get', value)
   )
 
