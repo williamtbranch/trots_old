@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, globalShortcut } from "electron";
 import * as path from "path";
 import { PlaceMenu } from "./ui";
 //import {SecurityDto, Trots} from "./trots";
@@ -6,6 +6,7 @@ import {ipcMain} from "electron";
 import CatFactEndpoint from "./services/CatFactEndpoint"
 import SecurityEndpoints from "./services/SecurityEndpoints";
 import {Tick} from "./trots"
+import {Config} from "./config";
 
 const ipc = ipcMain;
 let mainWindow: BrowserWindow;
@@ -21,8 +22,12 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, "../index.html"));
+  globalShortcut.register('Control+Shift+I', () => {
+    mainWindow.webContents.isDevToolsOpened() ? 
+      mainWindow.webContents.closeDevTools() :
+      mainWindow.webContents.openDevTools();
+  })
 
-  mainWindow.webContents.openDevTools();
 }
 
 app.on("ready", () => {
@@ -30,12 +35,19 @@ app.on("ready", () => {
   PlaceMenu(mainWindow); 
   //let trots = new Trots;
 
+
   CatFactEndpoint.catfact().then((fact: string) => 
     mainWindow.webContents.send('catfact', fact)
   )
-  SecurityEndpoints.security("IBM").then((value: Tick[]) => 
-    mainWindow.webContents.send('security:get', value)
-  )
+
+  const config = new Config();  
+  config.load(() => {
+    console.log("alphavantage key:", config.alphavantageKey)
+    SecurityEndpoints.key = config.alphavantageKey;
+    SecurityEndpoints.AVsecurity("SPY").then((value: Tick[]) => 
+      mainWindow.webContents.send('security:get', value)
+    )
+  });
 
   app.on("activate", function () {
     // On macOS it's common to re-create a window in the app when the

@@ -17,6 +17,7 @@
     "electron": "^16.0.7",
     "electron-squirrel-startup": "^1.0.0",
     "got": "^11.8.3",
+    "json5": "^2.2.0",
     "lightweight-charts": "^3.7.0"
   }
 }

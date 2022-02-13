@@ -28,20 +28,27 @@ interface  alphavantageSecurityDto {
 }
 
 class SecurityEndpoint {
+  key?: string;
   series: alphavantageSecurityDto;
-  security = (symbol: string) => got.get(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=demo`)
-    .json<any>()
-    .then(res => { return (Object.entries(res["Time Series (Daily)"]).map((x:[string,period]) => ({
-      close: parseFloat(x[1]["4. close"]),
-      open: parseFloat(x[1]["1. open"]),
-      high: parseFloat(x[1]["2. high"]),
-      low: parseFloat(x[1]["3. low"]),
-      time: new Date(x[0])
-    }) ).sort((a,b) =>
-      a.time.getTime() - b.time.getTime()
-    ))
-  
-  });
+
+  AVsecurity = (symbol: string) => 
+    got.get(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${this.key ?? 'demo'}`)
+      .json<any>()
+      .then(res => {
+        if(res["Time Series (Daily)"] === undefined) {
+          return [];
+        }
+        return (Object.entries(res["Time Series (Daily)"])
+          .map((x:[string,period]) => ({
+            close: parseFloat(x[1]["4. close"]),
+            open: parseFloat(x[1]["1. open"]),
+            high: parseFloat(x[1]["2. high"]),
+            low: parseFloat(x[1]["3. low"]),
+            time: new Date(x[0])
+          })).sort((a,b) =>
+            a.time.getTime() - b.time.getTime()
+          ))
+      }).catch((error) => console.log(error));
 }
 
 export default new SecurityEndpoint();
