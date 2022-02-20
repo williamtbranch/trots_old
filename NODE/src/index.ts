@@ -15,14 +15,15 @@ ipcRenderer.on('catfact', (event, catfact: string) => {
   console.log(catfact); 
 })
 
-ipcRenderer.on('security:get', (event, series: Tick[]) => {
-  const chart = createChart(document.body, {width: 600, height: 400});
-  console.log (series);
-  const lineSeries = chart.addLineSeries();
-  lineSeries.setData(series.map (x => ({
-    time: x.time.toISOString().split("T")[0],
-    value: x.close
-  })).sort((a,b) => 
-   a.time < b.time ? 1:0 
-  ))
+ipcRenderer.on('security:get', (event, series: any) => {
+  console.log("SPY data:", series);
+  // const chart = createChart(document.body, {width: 600, height: 400});
+  // console.log (series);
+  // const lineSeries = chart.addLineSeries();
+  // lineSeries.setData(series.map (x => ({
+  //   time: x.time.toISOString().split("T")[0],
+  //   value: x.close
+  // })).sort((a,b) => 
+  //  a.time < b.time ? 1:0 
+  // ))
 });

@@ -42,11 +42,16 @@ app.on("ready", () => {
 
   const config = new Config();  
   config.load(() => {
-    console.log("alphavantage key:", config.alphavantageKey)
-    SecurityEndpoints.key = config.alphavantageKey;
-    SecurityEndpoints.AVsecurity("SPY").then((value: Tick[]) => 
-      mainWindow.webContents.send('security:get', value)
-    )
+    // console.log("alphavantage key:", config.alphavantageKey)
+    console.log("tradestation key:", config.tradeStationKey)
+    // SecurityEndpoints.setKey(config.tradeStationKey);
+    // SecurityEndpoints.key = config.alphavantageKey;
+    // SecurityEndpoints.AVsecurity("SPY").then((value: Tick[]) => 
+    //   mainWindow.webContents.send('security:get', value)
+    // )
+    // SecurityEndpoints.security("SPY").then((data: any) => 
+    //   mainWindow.webContents.send('security:get', data)
+    // ).catch((error: any) => console.log(error)) ;
   });
 
   app.on("activate", function () {

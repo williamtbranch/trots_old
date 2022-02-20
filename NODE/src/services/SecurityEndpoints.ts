@@ -1,6 +1,6 @@
-
 import got from 'got';
 import {SecurityDto} from '../trots';
+import { LayoutOptions } from 'lightweight-charts';
 
 interface period {
   "1. open": string;
@@ -30,6 +30,18 @@ interface  alphavantageSecurityDto {
 class SecurityEndpoint {
   key?: string;
   series: alphavantageSecurityDto;
+  alpha?: any;
+  options: any;
+
+  setKey = (key: string) => {
+    this.key = key;
+    this.options = {
+      headers: {
+        'Authorization' : key
+      }
+    }
+  }
+
 
   AVsecurity = (symbol: string) => 
     got.get(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${this.key ?? 'demo'}`)
@@ -49,6 +61,9 @@ class SecurityEndpoint {
             a.time.getTime() - b.time.getTime()
           ))
       }).catch((error) => console.log(error));
+
+  // security = (symbol: string) => this.alpha.data.daily_adjusted("symbol");
+  // security = (symbol: string) => got.get(`https://api.tradestation.com/v3/marketdata/barcharts/${symbol}`, this.options)
 }
 
 export default new SecurityEndpoint();
