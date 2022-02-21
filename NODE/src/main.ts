@@ -7,7 +7,7 @@ import CatFactEndpoint from "./services/CatFactEndpoint"
 import SecurityEndpoints from "./services/SecurityEndpoints";
 import {Tick} from "./trots"
 import {Config} from "./config";
-import { getAccessCode, getTokens, TradeStationTokens, getQuote } from "./services/TradestationService";
+import { getAccessCode, getTokens, TradeStationTokens, getQuote, getAuthUrl } from "./services/TradestationService";
 
 const ipc = ipcMain;
 let mainWindow: BrowserWindow;
@@ -23,10 +23,10 @@ function tradestationAuth(key: string, secret: string) {
     width: 1000,
   });
 
-  mainWindow.loadURL(`https://api.tradestation.com/v2/authorize/?redirect_uri=http://47.186.99.99:8080&client_id=${key}&response_type=code`);
+  getAuthUrl(key).then((url) => mainWindow.loadURL(url))
   getAccessCode.then(code => {
     getTokens(key, secret, code).then((res: TradeStationTokens) => {
-      getQuote("ADAUSD", res.accessToken).then(res => 
+      getQuote("SPY", res.accessToken).then(res => 
         mainWindow.webContents.send('quote:get', res)
       )
     });

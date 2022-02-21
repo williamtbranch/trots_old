@@ -42,7 +42,6 @@ class SecurityEndpoint {
     }
   }
 
-
   AVsecurity = (symbol: string) => 
     got.get(`https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${this.key ?? 'demo'}`)
       .json<any>()
