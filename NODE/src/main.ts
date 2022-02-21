@@ -7,11 +7,13 @@ import CatFactEndpoint from "./services/CatFactEndpoint"
 import SecurityEndpoints from "./services/SecurityEndpoints";
 import {Tick} from "./trots"
 import {Config} from "./config";
+import { getAccessCode, getTokens, TradeStationTokens, getQuote } from "./services/TradestationService";
 
 const ipc = ipcMain;
 let mainWindow: BrowserWindow;
+const config = new Config();
 
-function createWindow() {
+function tradestationAuth(key: string, secret: string) {
   mainWindow = new BrowserWindow({
     height: 800,
     webPreferences: {
@@ -21,43 +23,41 @@ function createWindow() {
     width: 1000,
   });
 
-  mainWindow.loadFile(path.join(__dirname, "../index.html"));
+  mainWindow.loadURL(`https://api.tradestation.com/v2/authorize/?redirect_uri=http://47.186.99.99:8080&client_id=${key}&response_type=code`);
+  getAccessCode.then(code => {
+    getTokens(key, secret, code).then((res: TradeStationTokens) => {
+      getQuote("ADAUSD", res.accessToken).then(res => 
+        mainWindow.webContents.send('quote:get', res)
+      )
+    });
+
+    // VERY IMPORTANT!!! the code won't compile without these lines
+    CatFactEndpoint.catfact().then((fact: string) => 
+      mainWindow.webContents.send('catfact', fact)
+    )
+
+    mainWindow.loadFile(path.join(__dirname, "../index.html"))
+  })
+
   globalShortcut.register('Control+Shift+I', () => {
     mainWindow.webContents.isDevToolsOpened() ? 
       mainWindow.webContents.closeDevTools() :
       mainWindow.webContents.openDevTools();
   })
-
 }
 
 app.on("ready", () => {
-  createWindow();
-  PlaceMenu(mainWindow); 
-  //let trots = new Trots;
-
-
-  CatFactEndpoint.catfact().then((fact: string) => 
-    mainWindow.webContents.send('catfact', fact)
-  )
-
-  const config = new Config();  
   config.load(() => {
-    // console.log("alphavantage key:", config.alphavantageKey)
     console.log("tradestation key:", config.tradeStationKey)
-    // SecurityEndpoints.setKey(config.tradeStationKey);
-    // SecurityEndpoints.key = config.alphavantageKey;
-    // SecurityEndpoints.AVsecurity("SPY").then((value: Tick[]) => 
-    //   mainWindow.webContents.send('security:get', value)
-    // )
-    // SecurityEndpoints.security("SPY").then((data: any) => 
-    //   mainWindow.webContents.send('security:get', data)
-    // ).catch((error: any) => console.log(error)) ;
+    tradestationAuth(config.tradeStationKey, config.tradeStationSecret);
+    PlaceMenu(mainWindow); 
   });
+  //let trots = new Trots;
 
   app.on("activate", function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) tradestationAuth(config.tradeStationKey, config.tradeStationSecret);
   });
 });
 

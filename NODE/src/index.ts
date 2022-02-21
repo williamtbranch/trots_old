@@ -15,6 +15,10 @@ ipcRenderer.on('catfact', (event, catfact: string) => {
   console.log(catfact); 
 })
 
+ipcRenderer.on('quote:get', (event, quote: any) => {
+  console.log(quote); 
+})
+
 ipcRenderer.on('security:get', (event, series: any) => {
   console.log("SPY data:", series);
   // const chart = createChart(document.body, {width: 600, height: 400});
@@ -26,4 +30,8 @@ ipcRenderer.on('security:get', (event, series: any) => {
   // })).sort((a,b) => 
   //  a.time < b.time ? 1:0 
   // ))
+});
+
+ipcRenderer.on('tradestation:key', (event, key: string) => {
+  console.log("tradestation key is", key)
 });
