@@ -4,7 +4,6 @@ import { PlaceMenu } from "./ui";
 //import {SecurityDto, Trots} from "./trots";
 import {ipcMain} from "electron";
 import CatFactEndpoint from "./services/CatFactEndpoint"
-import SecurityEndpoints from "./services/SecurityEndpoints";
 import {Tick} from "./trots"
 import {Config} from "./config";
 import { getAccessCode, getTokens, TradeStationTokens, getQuote, getAuthUrl, getDaysBack } from "./services/TradestationService";
@@ -26,16 +25,16 @@ async function tradestationAuth(key: string, secret: string) {
   getAuthUrl(key).then((url) => mainWindow.loadURL(url))
   const code = await getAccessCode;
   const tokens = await getTokens(key, secret, code) as TradeStationTokens;
-  const data = await getDaysBack("SPY", tokens.accessToken)
+  const data = await getDaysBack( tokens.accessToken, "SPY", "Daily", 500)
 
   setTimeout(
-    () => mainWindow.webContents.send('graph', data),
+    () => mainWindow.webContents.send('security:graph', data),
     1000
   )
 
   // VERY IMPORTANT!!! the code won't compile without these lines
   CatFactEndpoint.catfact().then((fact: string) => 
-    mainWindow.webContents.send('catfact', fact)
+    mainWindow.webContents.send('catfact', data)
   )
 
   mainWindow.loadFile(path.join(__dirname, "../index.html"))

@@ -4,6 +4,9 @@ import { promisify } from 'node:util';
 import { Writable } from 'stream';
 import stream from 'node:stream';
 
+//const tradeStationURL =  "https://api.tradestation.com/v2";
+const tradeStationURL =  "https://sim-api.tradestation.com/v2";
+
 let localPublicIP: string;
 
 type tokenResponse = {
@@ -26,14 +29,14 @@ export type TradeStationTokens = {
 export const getAuthUrl = (key: string) => {
   return publicIp.v4().then(ip => {
     localPublicIP = ip;
-    return `https://api.tradestation.com/v2/authorize/?redirect_uri=http://${ip}:8080&client_id=${key}&response_type=code`
+    return `${tradeStationURL}/authorize/?redirect_uri=http://${ip}:8080&client_id=${key}&response_type=code`
   });
 }
 
 export const getTokens = 
   (clientId: string, clientSecret: string, accessCode: string ) => 
     //console.log("Public IP is: ", publicIp.v4());
-    got.post("https://api.tradestation.com/v2/Security/Authorize", {
+    got.post(`${tradeStationURL}/Security/Authorize`, {
       form: {
         "grant_type": "authorization_code",
         "client_id": clientId,
@@ -68,7 +71,7 @@ export const getAccessCode =
   })
 
 export const updateToken = (tokens: TradeStationTokens) =>
-  got.post("https://api.tradestation.com/v2/Security/Authorize", {
+  got.post(`${tradeStationURL}/Security/Authorize`, {
     form: {
       "grant_type": "refresh_token",
       "client_id": tokens.clientId,
@@ -87,25 +90,27 @@ export const updateToken = (tokens: TradeStationTokens) =>
   })).catch(error => console.log(error))
 
 export const getQuote = (symbol: string, bearer: string) =>
-  got.get(`https://api.tradestation.com/v2/data/quote/${symbol}`, {
+  got.get(`${tradeStationURL}/data/quote/${symbol}`, {
     headers: {
       'Authorization': `Bearer ${bearer}`
     }
   }).json()
 
-export const getDaysBack  = async (symbol: string, bearer: string) => {
+export const getDaysBack  = async (bearer: string, symbol: string, unit: "Minute"|"Daily"|"Weekly"|"Monthly", daysBack: number ) => {
 
   const pipeline = promisify(stream.pipeline);
+  
+  const isoDate = (new Date()).toISOString().split('T')[0].split('-');
+  const currentDate = `${isoDate[1]}-${isoDate[2]}-${isoDate[0]}`;
 
   let body: string = "";
   const writable = new Writable();
   writable._write = function(chunk, encoding, next) {
-    console.log(chunk.toString())
     body += chunk.toString();
     next();
   }
 
-  const tStream = got.stream(`https://api.tradestation.com/v2/stream/barchart/SPY/1/Daily?daysBack=250&lastDate=03-12-2022`, { 
+  const tStream = got.stream(`${tradeStationURL}/stream/barchart/${symbol}/1/${unit}?daysBack=${daysBack}&lastDate=${currentDate}`, { 
     headers: {
       'Authorization': `Bearer ${bearer}`,
       'Accept': 'application/vnd.tradesation.streams+json'
