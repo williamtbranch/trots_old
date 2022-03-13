@@ -1,5 +1,8 @@
 import got from 'got';
-import publicIp from 'public-ip'
+import publicIp from 'public-ip';
+import { promisify } from 'node:util';
+import { Writable } from 'stream';
+import stream from 'node:stream';
 
 let localPublicIP: string;
 
@@ -89,3 +92,33 @@ export const getQuote = (symbol: string, bearer: string) =>
       'Authorization': `Bearer ${bearer}`
     }
   }).json()
+
+export const getDaysBack  = async (symbol: string, bearer: string) => {
+
+  const pipeline = promisify(stream.pipeline);
+
+  let body: string = "";
+  const writable = new Writable();
+  writable._write = function(chunk, encoding, next) {
+    console.log(chunk.toString())
+    body += chunk.toString();
+    next();
+  }
+
+  const tStream = got.stream(`https://api.tradestation.com/v2/stream/barchart/SPY/1/Daily?daysBack=250&lastDate=03-12-2022`, { 
+    headers: {
+      'Authorization': `Bearer ${bearer}`,
+      'Accept': 'application/vnd.tradesation.streams+json'
+    }
+  });
+
+  tStream.on("error", (error) => console.log(error));
+
+  await pipeline ( tStream, writable );
+
+  return JSON.parse(`[${[...body.matchAll(/{[^}]*}/g)].join(",")}]`)
+    .map((x: any) => ({
+      ...x,
+      TimeStamp: +x.TimeStamp.match(/\d+/)[0]
+    }));
+}

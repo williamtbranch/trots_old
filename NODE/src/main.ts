@@ -7,13 +7,13 @@ import CatFactEndpoint from "./services/CatFactEndpoint"
 import SecurityEndpoints from "./services/SecurityEndpoints";
 import {Tick} from "./trots"
 import {Config} from "./config";
-import { getAccessCode, getTokens, TradeStationTokens, getQuote, getAuthUrl } from "./services/TradestationService";
+import { getAccessCode, getTokens, TradeStationTokens, getQuote, getAuthUrl, getDaysBack } from "./services/TradestationService";
 
 const ipc = ipcMain;
 let mainWindow: BrowserWindow;
 const config = new Config();
 
-function tradestationAuth(key: string, secret: string) {
+async function tradestationAuth(key: string, secret: string) {
   mainWindow = new BrowserWindow({
     height: 800,
     webPreferences: {
@@ -24,20 +24,21 @@ function tradestationAuth(key: string, secret: string) {
   });
 
   getAuthUrl(key).then((url) => mainWindow.loadURL(url))
-  getAccessCode.then(code => {
-    getTokens(key, secret, code).then((res: TradeStationTokens) => {
-      getQuote("SPY", res.accessToken).then(res => 
-        mainWindow.webContents.send('quote:get', res)
-      )
-    });
+  const code = await getAccessCode;
+  const tokens = await getTokens(key, secret, code) as TradeStationTokens;
+  const data = await getDaysBack("SPY", tokens.accessToken)
 
-    // VERY IMPORTANT!!! the code won't compile without these lines
-    CatFactEndpoint.catfact().then((fact: string) => 
-      mainWindow.webContents.send('catfact', fact)
-    )
+  setTimeout(
+    () => mainWindow.webContents.send('graph', data),
+    1000
+  )
 
-    mainWindow.loadFile(path.join(__dirname, "../index.html"))
-  })
+  // VERY IMPORTANT!!! the code won't compile without these lines
+  CatFactEndpoint.catfact().then((fact: string) => 
+    mainWindow.webContents.send('catfact', fact)
+  )
+
+  mainWindow.loadFile(path.join(__dirname, "../index.html"))
 
   globalShortcut.register('Control+Shift+I', () => {
     mainWindow.webContents.isDevToolsOpened() ? 
@@ -48,7 +49,7 @@ function tradestationAuth(key: string, secret: string) {
 
 app.on("ready", () => {
   config.load(() => {
-    console.log("tradestation key:", config.tradeStationKey)
+    //console.log("tradestation key:", config.tradeStationKey)
     tradestationAuth(config.tradeStationKey, config.tradeStationSecret);
     PlaceMenu(mainWindow); 
   });

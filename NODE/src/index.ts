@@ -19,6 +19,21 @@ ipcRenderer.on('quote:get', (event, quote: any) => {
   console.log(quote); 
 })
 
+ipcRenderer.on('daily:get', (event, daily: any) => {
+  console.log(daily); 
+})
+
+ipcRenderer.on('graph', (event, data: any) => {
+  const chart = createChart(document.body, {width: 600, height: 400});
+  console.log (data);
+  const lineSeries = chart.addLineSeries();
+  lineSeries.setData(data.map ((x: any) => ({
+    time: (new Date(x.TimeStamp)).toISOString().split("T")[0],
+    value: x.Close
+  })).sort((a: any,b: any) => 
+   a.time < b.time ? 1:0 
+  ))})
+
 ipcRenderer.on('security:get', (event, series: any) => {
   console.log("SPY data:", series);
   // const chart = createChart(document.body, {width: 600, height: 400});
