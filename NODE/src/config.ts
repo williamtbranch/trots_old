@@ -4,9 +4,13 @@ import { systemPreferences } from 'electron';
 
 export class Config {
   alphavantageKey: string;
+  tradeStationKey: string;
+  tradeStationSecret: string;
   path: string;
   constructor(){
     this.alphavantageKey = "demo";
+    this.tradeStationKey = "";
+    this.tradeStationSecret = "";
     this.path = process.env.HOME + "/.config/trots.conf";
   }
   save(){
@@ -26,7 +30,9 @@ export class Config {
         console.error(err); 
         return;
       }
-      this.alphavantageKey = data;
+      // this.alphavantageKey = data;
+      this.tradeStationKey = data.split('\n')[0];
+      this.tradeStationSecret = data.split('\n')[1];
       callback();
     })
   }
